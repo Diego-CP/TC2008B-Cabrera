@@ -33,16 +33,30 @@ class Cell(Agent):
 
         # Get the neighbors and apply the rules on whether to be alive or dead
         # at the next tick.
-        live_neighbors = sum(neighbor.isAlive() for neighbor in self.neighbors())
+        live_neighbors = [j.isAlive() for j in [i for i in self.neighbors() if i.y > self.y]]
 
         # Assume nextState is unchanged, unless changed below.
         self._nextState = self.state
-        if self.isAlive():
-            if live_neighbors < 2 or live_neighbors > 3:
+        
+        if(self.y != self.model.grid.height - 1):
+            if live_neighbors[0] == 0 and live_neighbors[1] == 0 and live_neighbors[2] == 0:
+                self._nextState = self.DEAD
+            elif live_neighbors[0] == 0 and live_neighbors[1] == 0 and live_neighbors[2] == 1:
+                self._nextState = self.ALIVE
+            elif live_neighbors[0] == 0 and live_neighbors[1] == 1 and live_neighbors[2] == 0:
+                self._nextState = self.DEAD
+            elif live_neighbors[0] == 0 and live_neighbors[1] == 1 and live_neighbors[2] == 1:
+                self._nextState = self.ALIVE
+            elif live_neighbors[0] == 1 and live_neighbors[1] == 0 and live_neighbors[2] == 0:
+                self._nextState = self.ALIVE
+            elif live_neighbors[0] == 1 and live_neighbors[1] == 0 and live_neighbors[2] == 1:
+                self._nextState = self.DEAD
+            elif live_neighbors[0] == 1 and live_neighbors[1] == 1 and live_neighbors[2] == 0:
+                self._nextState = self.ALIVE
+            elif live_neighbors[0] == 1 and live_neighbors[1] == 1 and live_neighbors[2] == 1:
                 self._nextState = self.DEAD
         else:
-            if live_neighbors == 3:
-                self._nextState = self.ALIVE
+            self._nextState = self.state
 
     def advance(self):
         """

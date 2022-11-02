@@ -30,7 +30,7 @@ class ConwaysGameOfLife(Model):
         # ALIVE and some to DEAD.
         for (contents, x, y) in self.grid.coord_iter():
             cell = Cell((x, y), self)
-            if self.random.random() < density:
+            if self.random.random() < density and  y == (height - 1):
                 cell.state = cell.ALIVE
             self.grid.place_agent(cell, (x, y))
             self.schedule.add(cell)
