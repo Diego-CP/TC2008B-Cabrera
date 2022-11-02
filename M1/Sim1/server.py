@@ -1,37 +1,31 @@
-from mesa.visualization.modules import CanvasGrid, ChartModule, PieChartModule
+from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.UserParam import UserSettableParameter
 
-from model import ForestFire
+from model import ConwaysGameOfLife
 
-COLORS = {"Fine": "#00AA00", "On Fire": "#880000", "Burned Out": "#000000"}
+def portrayCell(cell):
+    """
+    This function is registered with the visualization server to be called
+    each tick to indicate how to draw the cell in its current state.
+    :param cell:  the cell in the simulation
+    :return: the portrayal dictionary.
+    """
+    assert cell is not None
+    return {
+        "Shape": "rect",
+        "w": 0.8,
+        "h": 0.8,
+        "Filled": "true",
+        "Layer": 0,
+        "x": cell.x,
+        "y": cell.y,
+        "Color": "black" if cell.isAlive() else "white",
+    }
 
+# Make a world that is 50x50, on a 250x250 display.
+canvas_element = CanvasGrid(portrayCell, 50, 50, 500, 500)
 
-def forest_fire_portrayal(tree):
-    if tree is None:
-        return
-    portrayal = {"Shape": "rect", "w": 1, "h": 1, "Filled": "true", "Layer": 0}
-    (x, y) = tree.pos
-    portrayal["x"] = x
-    portrayal["y"] = y
-    portrayal["Color"] = COLORS[tree.condition]
-    return portrayal
-
-canvas_element = CanvasGrid(forest_fire_portrayal, 100, 100, 500, 500)
-
-tree_chart = ChartModule(
-    [{"Label": label, "Color": color} for (label, color) in COLORS.items()]
-)
-pie_chart = PieChartModule(
-    [{"Label": label, "Color": color} for (label, color) in COLORS.items()]
-)
-
-model_params = {
-    "height": 100,
-    "width": 100,
-    "density": UserSettableParameter("slider", "Tree density", 0.65, 0.01, 1.0, 0.01),
-}
-
-server = ModularServer(ForestFire, [canvas_element, tree_chart, pie_chart], "Forest Fire", model_params)
+server = ModularServer(ConwaysGameOfLife, [canvas_element], "Game of Life", {"height": 50, "width": 50, "density": UserSettableParameter("slider", "Cell density", 0.1, 0.01, 0.5, 0.01)})
 
 server.launch()
