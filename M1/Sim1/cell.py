@@ -33,27 +33,30 @@ class Cell(Agent):
 
         # Get the neighbors and apply the rules on whether to be alive or dead
         # at the next tick.
-        live_neighbors = [j.isAlive() for j in [i for i in self.neighbors() if i.y > self.y]]
+        if self.y != self.model.grid.height - 1:
+            live_neighbors = ''.join([str(int(i.isAlive())) for i in self.neighbors() if i.y == self.y+1])
+        else:
+            live_neighbors = ''.join([str(int(i.isAlive())) for i in self.neighbors() if i.y == 0])
 
         # Assume nextState is unchanged, unless changed below.
         self._nextState = self.state
-        
-        if(self.y != self.model.grid.height - 1):
-            if live_neighbors[0] == 0 and live_neighbors[1] == 0 and live_neighbors[2] == 0:
+
+        if self.y != self.model.grid.height - 1:
+            if live_neighbors == '000':
                 self._nextState = self.DEAD
-            elif live_neighbors[0] == 0 and live_neighbors[1] == 0 and live_neighbors[2] == 1:
+            elif live_neighbors == '001':
                 self._nextState = self.ALIVE
-            elif live_neighbors[0] == 0 and live_neighbors[1] == 1 and live_neighbors[2] == 0:
+            elif live_neighbors == '010':
                 self._nextState = self.DEAD
-            elif live_neighbors[0] == 0 and live_neighbors[1] == 1 and live_neighbors[2] == 1:
+            elif live_neighbors == '011':
                 self._nextState = self.ALIVE
-            elif live_neighbors[0] == 1 and live_neighbors[1] == 0 and live_neighbors[2] == 0:
+            elif live_neighbors == '100':
                 self._nextState = self.ALIVE
-            elif live_neighbors[0] == 1 and live_neighbors[1] == 0 and live_neighbors[2] == 1:
+            elif live_neighbors == '101':
                 self._nextState = self.DEAD
-            elif live_neighbors[0] == 1 and live_neighbors[1] == 1 and live_neighbors[2] == 0:
+            elif live_neighbors == '110':
                 self._nextState = self.ALIVE
-            elif live_neighbors[0] == 1 and live_neighbors[1] == 1 and live_neighbors[2] == 1:
+            elif live_neighbors == '111':
                 self._nextState = self.DEAD
         else:
             self._nextState = self.state

@@ -20,7 +20,7 @@ class Cell(Agent):
         return self.state == self.ALIVE
 
     def neighbors(self):
-        return self.model.grid.neighbor_iter((self.x, self.y), True)
+        return self.model.grid.get_neighbors((self.x, self.y), True)
 
     def step(self):
         """
@@ -33,16 +33,30 @@ class Cell(Agent):
 
         # Get the neighbors and apply the rules on whether to be alive or dead
         # at the next tick.
-        live_neighbors = sum(neighbor.isAlive() for neighbor in self.neighbors())
+        if self.y != self.model.grid.height - 1:
+            live_neighbors = ''.join([str(int(i.isAlive())) for i in self.neighbors() if i.y == self.y+1])
+        else:
+            live_neighbors = ''.join([str(int(i.isAlive())) for i in self.neighbors() if i.y == 0])
 
         # Assume nextState is unchanged, unless changed below.
-        self._nextState = self.state
-        if self.isAlive():
-            if live_neighbors < 2 or live_neighbors > 3:
-                self._nextState = self.DEAD
-        else:
-            if live_neighbors == 3:
-                self._nextState = self.ALIVE
+        self._nextState = self.state        
+        
+        if live_neighbors == '000':
+            self._nextState = self.DEAD
+        elif live_neighbors == '001':
+            self._nextState = self.ALIVE
+        elif live_neighbors == '010':
+            self._nextState = self.DEAD
+        elif live_neighbors == '011':
+            self._nextState = self.ALIVE
+        elif live_neighbors == '100':
+            self._nextState = self.ALIVE
+        elif live_neighbors == '101':
+            self._nextState = self.DEAD
+        elif live_neighbors == '110':
+            self._nextState = self.ALIVE
+        elif live_neighbors == '111':
+            self._nextState = self.DEAD
 
     def advance(self):
         """
