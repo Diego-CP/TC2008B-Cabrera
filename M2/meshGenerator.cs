@@ -1,7 +1,10 @@
 // Emiliano Cabrera Ruiz - A01025453
 
 // Just add this to an empty object and play, 
-// all additional objects + components will be added from here
+// all necessary objects and components will be added from here.
+
+// Empty objects will be added that can be seen within the Scene 
+// view to represent the original points.
 
 using System.Collections;
 using System.Collections.Generic;
