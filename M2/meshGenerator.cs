@@ -1,5 +1,8 @@
 // Emiliano Cabrera Ruiz - A01025453
 
+// Just add this to an empty object and play, 
+// all additional objects + components will be added from here
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,6 +22,10 @@ public class meshGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        transform.position = new Vector3(0,0,0);
+
+        gameObject.AddComponent<MeshRenderer>();
+
         vertexObjs = new GameObject[]
         {
             new GameObject("V1"),
@@ -31,11 +38,12 @@ public class meshGenerator : MonoBehaviour
         foreach(var GO in vertexObjs)
         {
             GO.transform.parent = transform;
-            var iconContent = EditorGUIUtility.IconContent("sv_icon_dot15_sml");
+            var iconContent = EditorGUIUtility.IconContent("sv_icon_dot13_sml");
             EditorGUIUtility.SetIconForObject(GO, (Texture2D) iconContent.image);
         }
         
         C = new Vector3 (-1.812f,-6.824f,5.247f);
+
         this.transform.GetChild(0).transform.position = new Vector3 (-1.812f,-6.824f,7.152f);
         this.transform.GetChild(1).transform.position = new Vector3 (-3.462f,-6.824f,4.294f);
         this.transform.GetChild(2).transform.position = new Vector3 (-0.162f,-6.824f,4.294f);
