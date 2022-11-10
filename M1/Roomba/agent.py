@@ -50,12 +50,18 @@ class RandomAgent(Agent):
                             continue
 
             for i in next_moves_dirt:
-                if isinstance(i,RandomAgent):
-                    next_moves_dirt.remove(i)
+                lst = self.model.grid.get_cell_list_contents(i)
+                for j in lst:
+                    if isinstance(j,RandomAgent):
+                        next_moves_dirt.remove(i)
+                        break
 
             for i in possible_steps:
-                if isinstance(i,RandomAgent):
-                    possible_steps.remove(i)
+                lst = self.model.grid.get_cell_list_contents(i)
+                for j in lst:
+                    if isinstance(j,RandomAgent):
+                        possible_steps.remove(i)
+                        break
             
             if len(next_moves_dirt) > 0:
                 next_move = self.random.choice(next_moves_dirt)
