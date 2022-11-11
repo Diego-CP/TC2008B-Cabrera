@@ -3,6 +3,7 @@ from mesa.time import RandomActivation
 from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
 from agent import RandomAgent, ObstacleAgent
+import time
 
 class RandomModel(Model):
     """ 
@@ -11,9 +12,13 @@ class RandomModel(Model):
         N: Number of agents in the simulation
         height, width: The size of the grid to model
     """
-    def __init__(self, N, D, width, height):
+    def __init__(self, N, D, width, height, T):
+        self.W = width
+        self.H = height
         self.num_agents = N
         self.dust = D
+        self.maxTime = T
+        self.activationTime = time.time()
         self.grid = MultiGrid(width,height,torus = False) 
         self.schedule = RandomActivation(self)
         self.running = True 
@@ -44,6 +49,24 @@ class RandomModel(Model):
         self.datacollector.collect(self)
 
     def step(self):
+        '''Check if there's still dust left'''
+        flag = False
+
+        if (time.time() - self.activationTime) > self.maxTime:
+            self.running = False
+            print("Maximum execution time reached.\nTerminating simulation.")
+            return
+
+        for i in self.grid.get_neighbors(pos = (int(self.W/2),int(self.H/2)),moore = True,include_center = True,radius = int(self.W/2)):
+            if isinstance(i,ObstacleAgent):
+                flag = True
+                break
+
+        if not flag:
+            self.running = False
+            print("Execution time:",(time.time() - self.activationTime), "s")
+            return
+        
         '''Advance the model by one step.'''
         self.schedule.step()
         self.datacollector.collect(self)

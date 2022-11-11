@@ -17,6 +17,7 @@ class RandomAgent(Agent):
         super().__init__(unique_id, model)
         self.direction = 4
         self.steps_taken = 0
+        self.last_move = (1,1)
 
     def move(self):
 
@@ -50,6 +51,9 @@ class RandomAgent(Agent):
                             continue
 
             for i in next_moves_dirt:
+                if i == self.last_move:
+                    next_moves_dirt.remove(i)
+                    continue
                 lst = self.model.grid.get_cell_list_contents(i)
                 for j in lst:
                     if isinstance(j,RandomAgent):
@@ -57,6 +61,9 @@ class RandomAgent(Agent):
                         break
 
             for i in possible_steps:
+                if i == self.last_move:
+                    possible_steps.remove(i)
+                    continue
                 lst = self.model.grid.get_cell_list_contents(i)
                 for j in lst:
                     if isinstance(j,RandomAgent):
@@ -66,12 +73,16 @@ class RandomAgent(Agent):
             if len(next_moves_dirt) > 0:
                 next_move = self.random.choice(next_moves_dirt)
             else:
-                next_move = self.random.choice(possible_steps)
+                if len(possible_steps) > 0:
+                    next_move = self.random.choice(possible_steps)
+                else:
+                    next_move = self.pos
 
             # Now move:
             if self.random.random() < 0.1:
                 self.model.grid.move_agent(self, next_move)
                 self.steps_taken+=1
+                self.last_move = next_move
 
             # If the cell is empty, moves the agent to that cell; otherwise, it stays at the same position
             # if freeSpaces[self.direction]:
