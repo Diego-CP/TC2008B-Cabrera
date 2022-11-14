@@ -53,8 +53,13 @@ class RandomModel(Model):
         flag = False
 
         if (time.time() - self.activationTime) > self.maxTime:
+            dirty_cells = 0
             self.running = False
             print("Maximum execution time reached.\nTerminating simulation.")
+            for i in self.grid.get_neighbors(pos = (int(self.W/2),int(self.H/2)),moore = True,include_center = True,radius = int(self.W/2)):
+                if (isinstance(i, ObstacleAgent)):
+                    dirty_cells += 1
+            print(f"Percentage of clean cells: {100 - ((dirty_cells)/(self.H * self.W) * 100)}%")
             return
 
         for i in self.grid.get_neighbors(pos = (int(self.W/2),int(self.H/2)),moore = True,include_center = True,radius = int(self.W/2)):
@@ -65,6 +70,7 @@ class RandomModel(Model):
         if not flag:
             self.running = False
             print("Execution time:",(time.time() - self.activationTime), "s")
+            print("Percentage of clean cells: 100%")
             return
         
         '''Advance the model by one step.'''
