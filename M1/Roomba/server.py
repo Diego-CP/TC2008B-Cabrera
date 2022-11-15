@@ -26,7 +26,7 @@ bar_chart = BarChartModule(
     [{"Label":"Steps", "Color":"#AA0000"}], 
     scope="agent", sorting="ascending", sort_by="Steps")
 
-server = ModularServer(RandomModel, [grid, bar_chart], "Random Agents", {"N":5, "width":10, "height":10, "D": UserSettableParameter("slider", "Dust percentage", 0.1, 0.01, 0.5, 0.01), "T": UserSettableParameter("slider", "Maximum Execution Time (s)", 10, 5, 60, 0.5)})
+server = ModularServer(RandomModel, [grid, bar_chart], "Random Agents", {"N":20, "width":10, "height":10, "D": UserSettableParameter("slider", "Dust percentage", 0.1, 0.01, 0.5, 0.01), "T": UserSettableParameter("slider", "Maximum Execution Time (s)", 10, 5, 60, 0.5)})
                        
 server.port = 8521 # The default
 server.launch()
