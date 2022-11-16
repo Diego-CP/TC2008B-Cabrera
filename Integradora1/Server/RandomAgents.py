@@ -19,7 +19,7 @@ class RandomAgent(Agent):
         unique_id: Agent's ID 
         direction: Randomly chosen direction chosen from one of eight directions
     """
-    def __init__(self, unique_id, model):
+    def __init__(self, unique_id, model, docks):
         """
         Creates a new random agent.
         Args:
@@ -28,25 +28,59 @@ class RandomAgent(Agent):
         """
         super().__init__(unique_id, model)
         self.direction = 4
+        self.dock_list = docks
+        self.carrying = False
+        self.next_stack = None
+        self.box = None
 
     def move(self):
-        """ 
-        Determines if the agent can move in the direction that was chosen
-        """
-        possible_steps = self.model.grid.get_neighborhood(
-            self.pos,
-            moore=True, # Boolean for whether to use Moore neighborhood (including diagonals) or Von Neumann (only up/down/left/right).
-            include_center=True) 
-        
-        # Checks which grid cells are empty
-        freeSpaces = list(map(self.model.grid.is_cell_empty, possible_steps))
+        vision = self.model.grid.get_neighborhood(self.pos, moore=True, include_center=True)
+        possible_steps = self.model.grid.get_neighborhood(self.pos,moore=False,include_center=False) 
 
-        # If the cell is empty, moves the agent to that cell; otherwise, it stays at the same position
-        if freeSpaces[self.direction]:
-            self.model.grid.move_agent(self, possible_steps[self.direction])
-            print(f"Se mueve de {self.pos} a {possible_steps[self.direction]}; direction {self.direction}")
+        check = lambda x: isinstance(x, BoxObject)
+
+        if not self.carrying:
+            """ 
+            Determines if the agent can move in the direction that was chosen
+            """
+
+            if True in map(check,vision):
+                for i in contents:
+                    if check(i):
+                        self.model.grid.remove_agent(i)
+                        break
+            
+            # Checks which grid cells are empty
+            freeSpaces = list(map(self.model.grid.is_cell_empty, possible_steps))
+
+            # If the cell is empty, moves the agent to that cell; otherwise, it stays at the same position
+            if freeSpaces[self.direction]:
+                self.model.grid.move_agent(self, possible_steps[self.direction])
+                print(f"Se mueve de {self.pos} a {possible_steps[self.direction]}; direction {self.direction}")
+            else:
+                print(f"No se puede mover de {self.pos} en esa direccion.")
         else:
-            print(f"No se puede mover de {self.pos} en esa direccion.")
+            if self.next_stack in self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False):
+                print(f"Agente {self.unique_id} dejo el paquete en el dock {self.next_stack}")
+                self.model.grid.place_agent(self.box, self.next_stack)
+                self.carrying = False
+                self.box = None
+                self.next_stack = None
+
+            else:
+                dist = map(lambda x: Math.sqrt((x[0] - self.pos[0])**2 + (x[1] - self.pos[1])**2), self.dock_list)
+                min_dist = dist.index(min(dist))
+
+                moves = [x for x in self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False) if self.model.grid.is_cell_empty(x)]
+
+                if len(moves) > 0:
+                    neigh_dist = map(lambda x: Math.sqrt((x[0] - self.dock_list[min_dist][0])**2 + (x[1] - self.dock_list[min_dist][1])**2), moves)
+                    min_neigh = neigh_dist.index(min(neigh_dist))
+
+                    self.model.grid.move_agent(self, moves[min_neigh])
+                
+                else:
+                    print("No hay movimientos disponibles.")
 
     def step(self):
         """ 
@@ -70,6 +104,11 @@ class BoxObject(Agent,ObstacleAgent):
     """
     Box object. Just to add boxes to the grid.
     """
+    def __init__(self, unique_id, model):
+        super().__init__(unique_id, model)
+
+    def step(self):
+        pass
  
 class RandomModel(Model):
     """ 
