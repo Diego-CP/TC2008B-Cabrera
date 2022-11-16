@@ -100,7 +100,7 @@ class ObstacleAgent(Agent):
     def step(self):
         pass
 
-class BoxObject(Agent,ObstacleAgent):
+class BoxObject(ObstacleAgent):
     """
     Box object. Just to add boxes to the grid.
     """
