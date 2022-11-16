@@ -66,15 +66,10 @@ class ObstacleAgent(Agent):
     def step(self):
         pass
 
-class BoxObject(Agent):
+class BoxObject(Agent,ObstacleAgent):
     """
     Box object. Just to add boxes to the grid.
     """
-    def __init__(self, unique_id, model):
-        super().__init__(unique_id, model)
-
-    def step(self):
-        pass   
  
 class RandomModel(Model):
     """ 
