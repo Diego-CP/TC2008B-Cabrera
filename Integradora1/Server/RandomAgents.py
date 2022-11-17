@@ -10,7 +10,7 @@ Autor: Jorge Ramírez Uresti, Octavio Navarro
 from mesa import Agent, Model
 from mesa.time import RandomActivation
 from mesa.space import Grid
-import Math
+import math
 
 class RandomAgent(Agent):
     """
@@ -39,17 +39,30 @@ class RandomAgent(Agent):
 
         check = lambda x: isinstance(x, BoxObject)
 
-        if not self.carrying:
-            """ 
-            Determines if the agent can move in the direction that was chosen
-            """
+        if not self.carrying: # is it not carrying a box?
+            if True in map(check, vision): # is there a box within vision?
+                if True in map(check, possible_steps): # is the visible box within reach?
+                    contents = self.model.grid.get_cell_list_contents(possible_steps[map(check, possible_steps).index(True)])
+                    for i in contents: # set carrying to true, get the box object, and remove box from grid
+                        if isinstance(i, BoxObject):
+                            self.carrying = True
+                            self.box = i
+                            self.model.grid.remove_agent(i)
+                            dist = list(map(lambda x: math.sqrt((x[0] - self.pos[0])**2 + (x[1] - self.pos[1])**2), self.dock_list)) # distance vector to find closest stack
+                            min_dist = dist.index(min(dist))
+                            break
+                        else:
+                            continue
+                else: # if the box is not within reach, move towards it
+                    corner_box = possible_steps[map(check, possible_steps).index(True)] # coordinates of the corner with a box
+                    corner_box_adjacents = self.model.grid.get_neighborhood(corner_box,moore=False,include_center=False)  # adjacent coordinates of the corner with a box
+                    for i in corner_box_adjacents: # if the adjacents of the corner overlap with the possible steps of the robot, and said cell is empty, then move there
+                        if i in possible_steps and self.model.grid.is_cell_empty(i):
+                            self.direction = possible_steps.index(i)
+                            break
+                        else:
+                            continue
 
-            if True in map(check,vision):
-                for i in contents:
-                    if check(i):
-                        self.model.grid.remove_agent(i)
-                        break
-            
             # Checks which grid cells are empty
             freeSpaces = list(map(self.model.grid.is_cell_empty, possible_steps))
 
@@ -59,22 +72,21 @@ class RandomAgent(Agent):
                 print(f"Se mueve de {self.pos} a {possible_steps[self.direction]}; direction {self.direction}")
             else:
                 print(f"No se puede mover de {self.pos} en esa direccion.")
-        else:
-            if self.next_stack in self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False):
+        else: # is it carrying a box?
+            if self.next_stack in self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False) and not self.next_stack == None: # is the next stack within reach?
                 print(f"Agente {self.unique_id} dejo el paquete en el dock {self.next_stack}")
                 self.model.grid.place_agent(self.box, self.next_stack)
                 self.carrying = False
                 self.box = None
                 self.next_stack = None
+            else: # the next stack is not within reach
+                dist = map(lambda x: math.sqrt((x[0] - self.pos[0])**2 + (x[1] - self.pos[1])**2), self.dock_list) # distance vector to find closest stack
+                self.next_stack = self.dock_list[dist.index(min(dist))]
 
-            else:
-                dist = map(lambda x: Math.sqrt((x[0] - self.pos[0])**2 + (x[1] - self.pos[1])**2), self.dock_list)
-                min_dist = dist.index(min(dist))
+                moves = [x for x in possible_steps if self.model.grid.is_cell_empty(x)]
 
-                moves = [x for x in self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False) if self.model.grid.is_cell_empty(x)]
-
-                if len(moves) > 0:
-                    neigh_dist = map(lambda x: Math.sqrt((x[0] - self.dock_list[min_dist][0])**2 + (x[1] - self.dock_list[min_dist][1])**2), moves)
+                if len(moves) > 0: # if there are empty cells within reach, move towards the one closest to the stack
+                    neigh_dist = map(lambda x: math.sqrt((x[0] - self.dock_list[min_dist][0])**2 + (x[1] - self.dock_list[min_dist][1])**2), moves)
                     min_neigh = neigh_dist.index(min(neigh_dist))
 
                     self.model.grid.move_agent(self, moves[min_neigh])
@@ -127,7 +139,7 @@ class RandomModel(Model):
         Creates a list of coordinates for the obstacles
         """  
         stacks = []
-        coor = Math.ceil(boxes/5)
+        coor = math.ceil(boxes/5)
         for i in range(coor):
             if(i+1%2==0):
                 stacks.append({width-2, i})
