@@ -1,4 +1,4 @@
-﻿// TC2008B. Sistemas Multiagentes y Gráficas Computacionales
+// TC2008B. Sistemas Multiagentes y Gráficas Computacionales
 // C# client to interact with Python. Based on the code provided by Sergio Ruiz.
 // Octavio Navarro. October 2021
 
@@ -39,7 +39,7 @@ public class AgentController : MonoBehaviour
     string serverUrl = "http://localhost:8585";
     string getAgentsEndpoint = "/getAgents";
     string getObstaclesEndpoint = "/getObstacles";
-    string getBoxesEndpoint = "/getBoxes"
+    string getBoxesEndpoint = "/getBoxes";
     string sendConfigEndpoint = "/init";
     string updateEndpoint = "/update";
     AgentsData agentsData, obstacleData, boxData;
@@ -49,7 +49,7 @@ public class AgentController : MonoBehaviour
     bool updated = false, started = false;
 
     public GameObject agentPrefab, obstaclePrefab, boxPrefab, floor;
-    public int NAgents, width, height;
+    public int NAgents, width, height, boxes;
     public float timeToUpdate = 5.0f;
     private float timer, dt;
 
@@ -123,6 +123,7 @@ public class AgentController : MonoBehaviour
         form.AddField("NAgents", NAgents.ToString());
         form.AddField("width", width.ToString());
         form.AddField("height", height.ToString());
+        form.AddField("boxes", boxes.ToString()); 
 
         UnityWebRequest www = UnityWebRequest.Post(serverUrl + sendConfigEndpoint, form);
         www.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded");
