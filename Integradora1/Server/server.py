@@ -11,7 +11,6 @@ width = 28
 height = 28
 randomModel = None
 currentStep = 0
-boxes = 20
 
 app = Flask("Traffic example")
 
@@ -25,12 +24,11 @@ def initModel():
         number_agents = int(request.form.get('NAgents'))
         width = int(request.form.get('width'))
         height = int(request.form.get('height'))
-        boxes = int(request.form.get('boxes'))
         currentStep = 0
 
         print(request.form)
         print(number_agents, width, height)
-        randomModel = RandomModel(number_agents, width, height,boxes)
+        randomModel = RandomModel(number_agents, width, height)
 
         return jsonify({"message":"Parameters recieved, model initiated."})
 
@@ -59,15 +57,6 @@ def updateModel():
         randomModel.step()
         currentStep += 1
         return jsonify({'message':f'Model updated to step {currentStep}.', 'currentStep':currentStep})
-
-@app.route('/getBoxes', methods=['GET'])
-def getBoxes():
-    global randomModel
-
-    if request.method == 'GET':
-        boxPositions = [{"id": str(a.unique_id), "x": x, "y":1, "z":z} for (a, x, z) in randomModel.grid.coord_iter() if isinstance(a, BoxAgent)]
-
-        return jsonify({'positions':boxPositions})
 
 if __name__=='__main__':
     app.run(host="localhost", port=8585, debug=True)
