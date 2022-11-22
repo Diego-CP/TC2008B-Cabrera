@@ -39,15 +39,16 @@ public class AgentController : MonoBehaviour
     string serverUrl = "http://localhost:8585";
     string getAgentsEndpoint = "/getAgents";
     string getObstaclesEndpoint = "/getObstacles";
+    string getBoxesEndpoint = "/getBoxes"
     string sendConfigEndpoint = "/init";
     string updateEndpoint = "/update";
-    AgentsData agentsData, obstacleData;
+    AgentsData agentsData, obstacleData, boxData;
     Dictionary<string, GameObject> agents;
     Dictionary<string, Vector3> prevPositions, currPositions;
 
     bool updated = false, started = false;
 
-    public GameObject agentPrefab, obstaclePrefab, floor;
+    public GameObject agentPrefab, obstaclePrefab, boxPrefab, floor;
     public int NAgents, width, height;
     public float timeToUpdate = 5.0f;
     private float timer, dt;
@@ -56,6 +57,7 @@ public class AgentController : MonoBehaviour
     {
         agentsData = new AgentsData();
         obstacleData = new AgentsData();
+        boxData = new AgentsData();
 
         prevPositions = new Dictionary<string, Vector3>();
         currPositions = new Dictionary<string, Vector3>();
@@ -137,6 +139,7 @@ public class AgentController : MonoBehaviour
             Debug.Log("Getting Agents positions");
             StartCoroutine(GetAgentsData());
             StartCoroutine(GetObstacleData());
+            StartCoroutine(GetBoxData());
         }
     }
 
@@ -190,6 +193,26 @@ public class AgentController : MonoBehaviour
             foreach(AgentData obstacle in obstacleData.positions)
             {
                 Instantiate(obstaclePrefab, new Vector3(obstacle.x, obstacle.y, obstacle.z), Quaternion.identity);
+            }
+        }
+    }
+
+    IEnumerator GetBoxData() 
+    {
+        UnityWebRequest www = UnityWebRequest.Get(serverUrl + getBoxesEndpoint);
+        yield return www.SendWebRequest();
+ 
+        if (www.result != UnityWebRequest.Result.Success)
+            Debug.Log(www.error);
+        else 
+        {
+            boxData = JsonUtility.FromJson<AgentsData>(www.downloadHandler.text);
+
+            Debug.Log(boxData.positions);
+
+            foreach(AgentData box in boxData.positions)
+            {
+                Instantiate(boxPrefab, new Vector3(box.x, box.y, box.z), Quaternion.identity);
             }
         }
     }
