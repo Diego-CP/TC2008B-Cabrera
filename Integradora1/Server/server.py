@@ -25,10 +25,10 @@ def initModel():
         width = int(request.form.get('width'))
         height = int(request.form.get('height'))
         currentStep = 0
-
+        boxes = int(request.form.get('boxes'))
+        randomModel = RandomModel(number_agents, width, height, boxes)
         print(request.form)
         print(number_agents, width, height)
-        randomModel = RandomModel(number_agents, width, height)
 
         return jsonify({"message":"Parameters recieved, model initiated."})
 

@@ -20,7 +20,7 @@ class RandomAgent(Agent):
         unique_id: Agent's ID 
         direction: Randomly chosen direction chosen from one of eight directions
     """
-    def __init__(self, unique_id, model):
+    def __init__(self, unique_id, model,docks):
         """
         Creates a new random agent.
         Args:
@@ -29,6 +29,10 @@ class RandomAgent(Agent):
         """
         super().__init__(unique_id, model)
         self.direction = 4
+        self.dock_list = docks
+        self.carrying = False
+        self.next_stack = None
+        self.box = None
 
     def move(self):
         vision = self.model.grid.get_neighborhood(self.pos, moore=True, include_center=True)
@@ -128,7 +132,7 @@ class RandomModel(Model):
         N: Number of agents in the simulation
         height, width: The size of the grid to model
     """
-    def __init__(self, N, width, height):
+    def __init__(self, N, width, height,boxes):
         self.num_agents = N
         self.grid = Grid(width,height,torus = False) 
         self.schedule = RandomActivation(self)
